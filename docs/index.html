@@ -1,0 +1,853 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Eitaa Serializer Documentation</title>
+    <meta name="description" content="Documentation for the disintegrations/eitaa-serializer-laravel Laravel package.">
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: #f7f8fa;
+            --surface: #ffffff;
+            --surface-2: #eef3f1;
+            --text: #1c2428;
+            --muted: #637178;
+            --line: #d7dee2;
+            --accent: #0f766e;
+            --accent-2: #b45309;
+            --accent-3: #3652a4;
+            --code-bg: #182126;
+            --code-text: #edf6f4;
+            --shadow: 0 18px 42px rgba(28, 36, 40, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            line-height: 1.6;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            border-bottom: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(12px);
+        }
+
+        .topbar-inner {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 12px 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .brand-mark {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: grid;
+            place-items: center;
+            color: white;
+            background: linear-gradient(135deg, #0f766e, #3652a4);
+            font-weight: 800;
+            font-size: 14px;
+        }
+
+        .brand-title {
+            font-weight: 750;
+            white-space: nowrap;
+        }
+
+        .brand-subtitle {
+            color: var(--muted);
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .button {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 8px 12px;
+            background: var(--surface);
+            color: var(--text);
+            font-weight: 650;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .button.primary {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: white;
+        }
+
+        .layout {
+            max-width: 1180px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 250px minmax(0, 1fr);
+            gap: 28px;
+            padding: 32px 22px 56px;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 76px;
+            align-self: start;
+            border-right: 1px solid var(--line);
+            padding-right: 22px;
+        }
+
+        .sidebar-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--muted);
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .nav {
+            display: grid;
+            gap: 2px;
+        }
+
+        .nav a {
+            color: var(--text);
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .nav a:hover {
+            background: var(--surface-2);
+            text-decoration: none;
+        }
+
+        main {
+            min-width: 0;
+        }
+
+        .hero {
+            min-height: 360px;
+            display: grid;
+            grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
+            gap: 28px;
+            align-items: center;
+            border-bottom: 1px solid var(--line);
+            padding-bottom: 34px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent);
+            font-weight: 800;
+            font-size: 13px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            font-size: clamp(36px, 6vw, 68px);
+            line-height: 0.98;
+            margin: 0 0 16px;
+            font-weight: 850;
+        }
+
+        .lead {
+            color: var(--muted);
+            font-size: 18px;
+            max-width: 680px;
+            margin: 0 0 22px;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .flow {
+            display: grid;
+            gap: 10px;
+            padding: 20px;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .flow-row {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .flow-node {
+            min-height: 64px;
+            border-radius: 8px;
+            padding: 12px;
+            background: #f8fafb;
+            border: 1px solid var(--line);
+        }
+
+        .flow-node strong {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .flow-node span {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .flow-arrow {
+            color: var(--accent);
+            font-weight: 900;
+        }
+
+        section {
+            padding: 34px 0;
+            border-bottom: 1px solid var(--line);
+        }
+
+        h2 {
+            font-size: 30px;
+            line-height: 1.15;
+            margin: 0 0 10px;
+        }
+
+        h3 {
+            font-size: 18px;
+            margin: 0 0 8px;
+        }
+
+        p {
+            margin: 0 0 14px;
+        }
+
+        .section-intro {
+            color: var(--muted);
+            max-width: 780px;
+            margin-bottom: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .grid.three {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 18px;
+            box-shadow: 0 8px 22px rgba(28, 36, 40, 0.04);
+        }
+
+        .badge-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            min-height: 30px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 4px 9px;
+            background: var(--surface);
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 650;
+        }
+
+        .code-block {
+            position: relative;
+            margin: 12px 0 18px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #27343b;
+            background: var(--code-bg);
+        }
+
+        .code-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 8px 10px;
+            background: #10181d;
+            color: #aec0c7;
+            font-size: 13px;
+            border-bottom: 1px solid #27343b;
+        }
+
+        .copy {
+            border: 1px solid #3a4a52;
+            border-radius: 8px;
+            background: #182126;
+            color: #edf6f4;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 5px 8px;
+        }
+
+        pre {
+            margin: 0;
+            padding: 16px;
+            overflow-x: auto;
+        }
+
+        code {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+            font-size: 13px;
+        }
+
+        pre code {
+            color: var(--code-text);
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--surface);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 620px;
+        }
+
+        th,
+        td {
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--line);
+            vertical-align: top;
+        }
+
+        th {
+            font-size: 13px;
+            color: var(--muted);
+            text-transform: uppercase;
+            background: #f9fbfc;
+        }
+
+        tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .callout {
+            border-left: 4px solid var(--accent-2);
+            background: #fff8ed;
+            padding: 14px 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+
+        .footer {
+            color: var(--muted);
+            font-size: 14px;
+            padding-top: 24px;
+        }
+
+        @media (max-width: 920px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+                border-right: 0;
+                border-bottom: 1px solid var(--line);
+                padding: 0 0 16px;
+            }
+
+            .nav {
+                display: flex;
+                overflow-x: auto;
+                padding-bottom: 2px;
+            }
+
+            .nav a {
+                white-space: nowrap;
+            }
+
+            .hero {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 680px) {
+            .topbar-inner {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .brand-subtitle {
+                white-space: normal;
+            }
+
+            .layout {
+                padding: 22px 16px 42px;
+            }
+
+            .grid,
+            .grid.three {
+                grid-template-columns: 1fr;
+            }
+
+            .flow-row {
+                grid-template-columns: 1fr;
+            }
+
+            .flow-arrow {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+<header class="topbar">
+    <div class="topbar-inner">
+        <div class="brand">
+            <div class="brand-mark">TL</div>
+            <div>
+                <div class="brand-title">Eitaa Serializer</div>
+                <div class="brand-subtitle">Laravel package for Eitaa TL gateway requests</div>
+            </div>
+        </div>
+        <div class="top-actions">
+            <a class="button" href="https://github.com/disintegrations/eitaa-serializer-laravel">GitHub</a>
+            <a class="button primary" href="#install">Install</a>
+        </div>
+    </div>
+</header>
+
+<div class="layout">
+    <aside class="sidebar" aria-label="Documentation navigation">
+        <div class="sidebar-title">Documentation</div>
+        <nav class="nav">
+            <a href="#overview">Overview</a>
+            <a href="#install">Install</a>
+            <a href="#configuration">Configuration</a>
+            <a href="#usage">Usage</a>
+            <a href="#tl-rules">TL Rules</a>
+            <a href="#testing">Testing</a>
+            <a href="#pages">GitHub Pages</a>
+            <a href="#troubleshooting">Troubleshooting</a>
+        </nav>
+    </aside>
+
+    <main>
+        <section class="hero" id="overview">
+            <div>
+                <div class="eyebrow">eitaa serializer laravel package</div>
+                <h1>Use Eitaa TL methods directly from Laravel.</h1>
+                <p class="lead">
+                    Serialize Telegram/Eitaa-style TL method calls, wrap them in an Eitaa gateway object,
+                    send the binary payload with Laravel HTTP, and deserialize the binary response.
+                </p>
+                <div class="hero-actions">
+                    <a class="button primary" href="#install">Get started</a>
+                    <a class="button" href="#usage">View examples</a>
+                </div>
+                <div class="badge-list" aria-label="Package requirements">
+                    <span class="badge">PHP 8.3+</span>
+                    <span class="badge">Laravel 12+</span>
+                    <span class="badge">Pest tests</span>
+                    <span class="badge">Bundled TL schema</span>
+                </div>
+            </div>
+
+            <div class="flow" aria-label="Request flow diagram">
+                <div class="flow-row">
+                    <div class="flow-node">
+                        <strong>Laravel app</strong>
+                        <span>Call EitaaGatewayClient::send()</span>
+                    </div>
+                    <div class="flow-arrow">-></div>
+                    <div class="flow-node">
+                        <strong>TL serializer</strong>
+                        <span>Encode method and params</span>
+                    </div>
+                </div>
+                <div class="flow-row">
+                    <div class="flow-node">
+                        <strong>eitaaObject</strong>
+                        <span>Wrap token, imei, payload, layer</span>
+                    </div>
+                    <div class="flow-arrow">-></div>
+                    <div class="flow-node">
+                        <strong>Eitaa gateway</strong>
+                        <span>POST binary request</span>
+                    </div>
+                </div>
+                <div class="flow-row">
+                    <div class="flow-node">
+                        <strong>TL deserializer</strong>
+                        <span>Decode response and packed data</span>
+                    </div>
+                    <div class="flow-arrow">-></div>
+                    <div class="flow-node">
+                        <strong>PHP array</strong>
+                        <span>Use response in your app</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="install">
+            <h2>Installation</h2>
+            <p class="section-intro">Use the package through Composer. Laravel package discovery registers the service
+                provider automatically.</p>
+
+            <div class="code-block">
+                <div class="code-header"><span>bash</span>
+                    <button class="copy" type="button">Copy</button>
+                </div>
+                <pre><code>composer require disintegrations/eitaa-serializer-laravel</code></pre>
+            </div>
+
+
+            <div class="grid">
+
+                <div >
+                    <h3>Requirements</h3>
+                    <p>Composer will enforce these constraints.</p>
+                    <div class="badge-list">
+                        <span class="badge">php ^8.3</span>
+                        <span class="badge">illuminate/http ^12|^13</span>
+                        <span class="badge">illuminate/support ^12|^13</span>
+                        <span class="badge">ext-json</span>
+                        <span class="badge">ext-zlib</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="configuration">
+            <h2>Configuration</h2>
+            <p class="section-intro">The default configuration works for normal use. Publish files only when you need to
+                override the endpoint, layer, timeout, IMEI, or schema path.</p>
+
+            <div class="code-block">
+                <div class="code-header"><span>bash</span>
+                    <button class="copy" type="button">Copy</button>
+                </div>
+                <pre><code>php artisan vendor:publish --tag=eitaa-config</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header"><span>.env</span>
+                    <button class="copy" type="button">Copy</button>
+                </div>
+                <pre><code>EITAA_GATEWAY_ENDPOINT=https://sajad.eitaa.ir/eitaa/
+EITAA_LAYER=133
+EITAA_DEFAULT_IMEI=00__web
+EITAA_TIMEOUT=30</code></pre>
+            </div>
+
+            <p>Publish the bundled schema only when it must be customized.</p>
+            <div class="code-block">
+                <div class="code-header"><span>bash</span>
+                    <button class="copy" type="button">Copy</button>
+                </div>
+                <pre><code>php artisan vendor:publish --tag=eitaa-schema</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header"><span>.env</span>
+                    <button class="copy" type="button">Copy</button>
+                </div>
+                <pre><code>EITAA_SCHEMA_PATH=/absolute/path/to/resources/eitaa/schema.json</code></pre>
+            </div>
+        </section>
+
+        <section id="usage">
+            <h2>Usage</h2>
+            <p class="section-intro">Resolve the client from the container, inject it into your service, or use the
+                facade.</p>
+
+            <h3>Container client</h3>
+            <div class="code-block">
+                <div class="code-header"><span>php</span>
+                    <button class="copy" type="button">Copy</button>
+                </div>
+                <pre><code>use Disintegrations\EitaaSerializer\EitaaGatewayClient;
+
+$response = app(EitaaGatewayClient::class)->send(
+    method: 'help.getConfig',
+    params: [],
+    token: null,
+    imei: null,
+);</code></pre>
+            </div>
+
+            <h3>Facade</h3>
+            <div class="code-block">
+                <div class="code-header"><span>php</span>
+                    <button class="copy" type="button">Copy</button>
+                </div>
+                <pre><code>use Disintegrations\EitaaSerializer\Facades\Eitaa;
+
+$response = Eitaa::send('help.getConfig');</code></pre>
+            </div>
+
+            <h3>Authenticated method</h3>
+            <div class="code-block">
+                <div class="code-header"><span>php</span>
+                    <button class="copy" type="button">Copy</button>
+                </div>
+                <pre><code>$response = app(EitaaGatewayClient::class)->send(
+    method: 'messages.sendMessage',
+    params: [
+        'flags' => 0,
+        'peer' => [
+            '_' => 'inputPeerUser',
+            'user_id' => '123456789',
+            'access_hash' => '987654321',
+        ],
+        'message' => 'Hello',
+        'random_id' => (string) random_int(1, PHP_INT_MAX),
+    ],
+    token: $token,
+    imei: $imei,
+);</code></pre>
+            </div>
+        </section>
+
+        <section id="tl-rules">
+            <h2>TL Value Rules</h2>
+            <p class="section-intro">The serializer follows the bundled TL schema. Shape request arrays to match method
+                params and constructor predicates.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Value</th>
+                        <th>Rule</th>
+                        <th>Example</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>Object constructor</td>
+                        <td>Use `_` for the predicate.</td>
+                        <td><code>['_'=> 'inputPeerSelf']</code></td>
+                    </tr>
+                    <tr>
+                        <td>Optional fields</td>
+                        <td>Set the required `flags` bit or the field is omitted.</td>
+                        <td><code>'flags' => 1</code></td>
+                    </tr>
+                    <tr>
+                        <td>long</td>
+                        <td>Use strings when values can exceed PHP integer range.</td>
+                        <td><code>'random_id' => '123456789'</code></td>
+                    </tr>
+                    <tr>
+                        <td>bytes and intN</td>
+                        <td>Use raw binary strings or arrays of byte integers.</td>
+                        <td><code>hex2bin('6b18f9c4')</code></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                If a request fails while serializing, check the schema entry for the method, nested constructor
+                predicates, and exact flag bits.
+            </div>
+        </section>
+
+        <section id="testing">
+            <h2>Testing</h2>
+            <p class="section-intro">The package includes fast unit tests and live integration tests for no-auth Eitaa
+                methods.</p>
+
+            <div class="grid">
+                <div class="card">
+                    <h3>Normal tests</h3>
+                    <p>No real Eitaa network calls.</p>
+                    <div class="code-block">
+                        <div class="code-header"><span>bash</span>
+                            <button class="copy" type="button">Copy</button>
+                        </div>
+                        <pre><code>composer install
+composer test</code></pre>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Live integration tests</h3>
+                    <p>Calls no-auth methods on the Eitaa gateway.</p>
+                    <div class="code-block">
+                        <div class="code-header"><span>bash</span>
+                            <button class="copy" type="button">Copy</button>
+                        </div>
+                        <pre><code>EITAA_RUN_INTEGRATION=1 composer test:integration</code></pre>
+                    </div>
+                    <div class="code-block">
+                        <div class="code-header"><span>powershell</span>
+                            <button class="copy" type="button">Copy</button>
+                        </div>
+                        <pre><code>$env:EITAA_RUN_INTEGRATION='1'; composer test:integration</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <h3>No-auth integration methods</h3>
+            <div class="badge-list">
+                <span class="badge">help.getConfig</span>
+                <span class="badge">help.getNearestDc</span>
+            </div>
+        </section>
+
+        <section id="pages">
+            <h2>GitHub Pages</h2>
+            <p class="section-intro">This page is ready to serve from the repository's `docs` folder.</p>
+
+            <div class="card">
+                <h3>Repository setting</h3>
+                <p>In GitHub, open Settings, Pages, then choose Deploy from a branch. Set the branch to `main` and the
+                    folder to `/docs`.</p>
+            </div>
+        </section>
+
+        <section id="troubleshooting">
+            <h2>Troubleshooting</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Class not found</h3>
+                    <p>Run Composer autoload refresh and confirm package discovery has registered the provider.</p>
+                    <div class="code-block">
+                        <div class="code-header"><span>bash</span>
+                            <button class="copy" type="button">Copy</button>
+                        </div>
+                        <pre><code>composer dump-autoload
+php artisan package:discover</code></pre>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Config values stale</h3>
+                    <p>Clear Laravel's cached configuration after changing `.env` or published config.</p>
+                    <div class="code-block">
+                        <div class="code-header"><span>bash</span>
+                            <button class="copy" type="button">Copy</button>
+                        </div>
+                        <pre><code>php artisan config:clear</code></pre>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Deserializer error</h3>
+                    <p>Dump the response status, content type, length, and first bytes in hex before parsing.</p>
+                    <div class="code-block">
+                        <div class="code-header"><span>php</span>
+                            <button class="copy" type="button">Copy</button>
+                        </div>
+                        <pre><code>dd([
+    'status' => $response->status(),
+    'content_type' => $response->header('content-type'),
+    'length' => strlen($raw),
+    'first_64_hex' => bin2hex(substr($raw, 0, 64)),
+]);</code></pre>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Integration CI</h3>
+                    <p>The workflow probes the gateway first and runs live tests only when the Eitaa endpoint is
+                        reachable.</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="footer">
+            Documentation for `disintegrations/eitaa-serializer-laravel`. Generated as a static GitHub Pages page.
+        </div>
+    </main>
+</div>
+
+<script>
+    document.querySelectorAll('.copy').forEach(function (button) {
+        button.addEventListener('click', async function () {
+            var block = button.closest('.code-block');
+            var code = block ? block.querySelector('code') : null;
+            if (!code) {
+                return;
+            }
+
+            try {
+                await navigator.clipboard.writeText(code.innerText);
+                var previous = button.innerText;
+                button.innerText = 'Copied';
+                setTimeout(function () {
+                    button.innerText = previous;
+                }, 1200);
+            } catch (error) {
+                button.innerText = 'Select';
+            }
+        });
+    });
+</script>
+</body>
+</html>

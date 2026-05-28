@@ -1,0 +1,49 @@
+{
+    "name": "disintegrations/eitaa-serializer-laravel",
+    "description": "Laravel client for serializing Eitaa TL requests and sending them to the Eitaa gateway.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.3",
+        "ext-json": "*",
+        "ext-zlib": "*",
+        "illuminate/http": "^12.0|^13.0",
+        "illuminate/support": "^12.0|^13.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^10.0 || ^11.0",
+        "pestphp/pest": "^3.0 || ^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Disintegrations\\EitaaSerializer\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Disintegrations\\EitaaSerializer\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test:integration": "pest --group=integration",
+        "test": "pest"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        },
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "1.0-dev"
+        },
+        "laravel": {
+            "providers": [
+                "Disintegrations\\EitaaSerializer\\EitaaSerializerServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

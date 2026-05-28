@@ -1,0 +1,53 @@
+name: Package CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.4', '8.5']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: json, zlib
+          coverage: none
+
+      - name: Validate Composer metadata
+        run: composer validate --strict
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Check PHP syntax
+        run: find src config tests -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Run Pest tests
+        run: vendor/bin/pest --colors=always --exclude-group=integration --do-not-cache-result
+
+      - name: Check Eitaa gateway reachability
+        id: eitaa
+        run: |
+          if curl --silent --show-error --head --max-time 10 https://sajad.eitaa.ir/eitaa/ > /dev/null; then
+            echo "reachable=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "reachable=false" >> "$GITHUB_OUTPUT"
+            echo "Eitaa gateway is not reachable; skipping live integration tests."
+          fi
+
+      - name: Run live Eitaa integration tests
+        if: ${{ steps.eitaa.outputs.reachable == 'true' }}
+        env:
+          EITAA_RUN_INTEGRATION: '1'
+        run: vendor/bin/pest --colors=always --group=integration --do-not-cache-result

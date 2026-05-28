@@ -1,0 +1,26 @@
+# Dependencies
+/vendor/
+/node_modules/
+
+# Composer
+/composer.lock
+
+# Test and coverage output
+/.phpunit.cache/
+/.phpunit.result.cache
+/coverage/
+/build/
+
+# Local environment
+.env
+.env.*
+!.env.example
+
+# IDE and OS files
+/.idea/
+/.vscode/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
