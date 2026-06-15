@@ -1,6 +1,6 @@
 ---
 name: use-eitaa-serializer
-description: Use when Codex needs to install, configure, test, or troubleshoot the disintegrations/eitaa-serializer-laravel Composer package in another Laravel project. Covers Laravel 12+/PHP 8.3+ requirements, Composer path/VCS installs, EitaaGatewayClient and facade usage, TL parameter rules, no-auth Eitaa methods, and Pest integration tests.
+description: Use when configuring, using, testing, or troubleshooting the disintegrations/eitaa-serializer-laravel package. Covers EitaaGatewayClient and facade usage, TL parameter rules, no-auth Eitaa methods, and Pest integration tests.
 ---
 
 # Eitaa Serializer Package
@@ -13,15 +13,6 @@ Use this skill when working with the `disintegrations/eitaa-serializer-laravel` 
 - Require Laravel 12 or newer.
 - Use package namespace `Disintegrations\EitaaSerializer`.
 - The package sends binary TL payloads to `https://sajad.eitaa.ir/eitaa/` through Laravel's HTTP client.
-
-## Install
-
-
-```bash
-composer require disintegrations/eitaa-serializer-laravel
-```
-
-Laravel package discovery registers `Disintegrations\EitaaSerializer\EitaaSerializerServiceProvider` automatically.
 
 ## Configuration
 
@@ -133,7 +124,6 @@ In CI, run integration tests only after checking `https://sajad.eitaa.ir/eitaa/`
 
 ## Troubleshooting
 
-- If `Class ... not found`, run `composer dump-autoload` and confirm the package is installed.
 - If Laravel config values do not update, run `php artisan config:clear`.
 - If deserialization fails, dump HTTP status, content type, response length, and first bytes in hex before parsing.
 - If a TL object fails to serialize, check the schema for the exact method params, nested constructor predicates, and required flags.
