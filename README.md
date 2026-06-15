@@ -1,5 +1,7 @@
 # Eitaa Serializer
 
+[![Package CI](https://github.com/disintegrations/eitaa-serializer-laravel/actions/workflows/tests.yml/badge.svg)](https://github.com/disintegrations/eitaa-serializer-laravel/actions/workflows/tests.yml)
+
 Laravel client for serializing Eitaa TL requests, sending them to `https://sajad.eitaa.ir/eitaa/`,
 and deserializing the binary response.
 
