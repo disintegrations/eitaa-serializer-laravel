@@ -125,11 +125,11 @@ class TlSchema
                 $this->constructorsById[$schemaName][(int) $constructor['id']] = $constructor;
 
                 $predicate = $constructor['predicate'] ?? $constructor['method'] ?? null;
-                if (is_string($predicate) && $predicate !== '') {
+                if (is_string($predicate) && $predicate !== '' && ! ($constructor['decode_only'] ?? false)) {
                     $this->constructorsByPredicate[$schemaName][$predicate] = $constructor;
                 }
 
-                if (! isset($this->constructorsByType[$schemaName][$constructor['type']])) {
+                if (! isset($this->constructorsByType[$schemaName][$constructor['type']]) && ! ($constructor['decode_only'] ?? false)) {
                     $this->constructorsByType[$schemaName][$constructor['type']] = $constructor;
                 }
             }
@@ -143,4 +143,3 @@ class TlSchema
         }
     }
 }
-

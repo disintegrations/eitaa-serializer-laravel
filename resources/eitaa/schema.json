@@ -361,7 +361,196 @@
             "type": "EitaaUpdatesExpireToken"
         }, { "id": -601545867, "method": "eitaaTokenUpdating", "params": [], "type": "EitaaTokenUpdating" }]
     }, "API": {
-        "constructors": [{ "id": -1132882121, "predicate": "boolFalse", "params": [], "type": "Bool" }, {
+        "constructors": [{
+            "id": -321753653,
+            "predicate": "user",
+            "decode_only": true,
+            "params": [
+                {
+                    "name": "flags",
+                    "type": "#"
+                },
+                {
+                    "name": "flags2",
+                    "type": "#"
+                },
+                {
+                    "name": "eFlags",
+                    "type": "#"
+                },
+                {
+                    "name": "self",
+                    "type": "flags.10?true"
+                },
+                {
+                    "name": "contact",
+                    "type": "flags.11?true"
+                },
+                {
+                    "name": "mutual_contact",
+                    "type": "flags.12?true"
+                },
+                {
+                    "name": "deleted",
+                    "type": "flags.13?true"
+                },
+                {
+                    "name": "bot",
+                    "type": "flags.14?true"
+                },
+                {
+                    "name": "bot_chat_history",
+                    "type": "flags.15?true"
+                },
+                {
+                    "name": "bot_nochats",
+                    "type": "flags.16?true"
+                },
+                {
+                    "name": "verified",
+                    "type": "flags.17?true"
+                },
+                {
+                    "name": "restricted",
+                    "type": "flags.18?true"
+                },
+                {
+                    "name": "min",
+                    "type": "flags.20?true"
+                },
+                {
+                    "name": "bot_inline_geo",
+                    "type": "flags.21?true"
+                },
+                {
+                    "name": "support",
+                    "type": "flags.23?true"
+                },
+                {
+                    "name": "scam",
+                    "type": "flags.24?true"
+                },
+                {
+                    "name": "apply_min_photo",
+                    "type": "flags.25?true"
+                },
+                {
+                    "name": "fake",
+                    "type": "flags.26?true"
+                },
+                {
+                    "name": "id",
+                    "type": "long"
+                },
+                {
+                    "name": "access_hash",
+                    "type": "flags.0?long"
+                },
+                {
+                    "name": "first_name",
+                    "type": "flags.1?string"
+                },
+                {
+                    "name": "last_name",
+                    "type": "flags.2?string"
+                },
+                {
+                    "name": "username",
+                    "type": "flags.3?string"
+                },
+                {
+                    "name": "phone",
+                    "type": "flags.4?string"
+                },
+                {
+                    "name": "photo",
+                    "type": "flags.5?UserProfilePhoto"
+                },
+                {
+                    "name": "status",
+                    "type": "flags.6?UserStatus"
+                },
+                {
+                    "name": "bot_info_version",
+                    "type": "flags.14?int"
+                },
+                {
+                    "name": "restriction_reason",
+                    "type": "flags.18?Vector<RestrictionReason>"
+                },
+                {
+                    "name": "bot_inline_placeholder",
+                    "type": "flags.19?string"
+                },
+                {
+                    "name": "lang_code",
+                    "type": "flags.22?string"
+                },
+                {
+                    "name": "miniApp",
+                    "type": "eFlags.0?true"
+                },
+                {
+                    "name": "badge_name",
+                    "type": "eFlags.1?string"
+                },
+                {
+                    "name": "badge_red_color",
+                    "type": "eFlags.2?true"
+                },
+                {
+                    "name": "miniAppGeo",
+                    "type": "eFlags.4?true"
+                },
+                {
+                    "name": "bot_active_users",
+                    "type": "flags2.12?int"
+                }
+            ],
+            "type": "User"
+        },
+        {
+            "id": 347625491,
+            "predicate": "updateBotMenuButton",
+            "params": [
+                {
+                    "name": "bot_id",
+                    "type": "long"
+                },
+                {
+                    "name": "button",
+                    "type": "BotMenuButton"
+                }
+            ],
+            "type": "Update"
+        },
+        {
+            "id": 361936797,
+            "predicate": "updateWebViewResultSent",
+            "params": [
+                {
+                    "name": "query_id",
+                    "type": "long"
+                }
+            ],
+            "type": "Update"
+        },
+        {
+            "id": -944407322,
+            "predicate": "botMenuButton",
+            "params": [
+                {
+                    "name": "text",
+                    "type": "string"
+                },
+                {
+                    "name": "url",
+                    "type": "string"
+                }
+            ],
+            "type": "BotMenuButton"
+        },
+        { "id": -1132882121, "predicate": "boolFalse", "params": [], "type": "Bool" }, {
             "id": -1720552011,
             "predicate": "boolTrue",
             "params": [],
@@ -778,25 +967,76 @@
         }, {
             "id": 1103884886,
             "predicate": "chat",
-            "params": [{ "name": "flags", "type": "#" }, { "name": "creator", "type": "flags.0?true" }, {
-                "name": "kicked",
-                "type": "flags.1?true"
-            }, { "name": "left", "type": "flags.2?true" }, { "name": "deactivated", "type": "flags.5?true" }, {
-                "name": "call_active",
-                "type": "flags.23?true"
-            }, { "name": "call_not_empty", "type": "flags.24?true" }, { "name": "id", "type": "long" }, {
-                "name": "title",
-                "type": "string"
-            }, { "name": "photo", "type": "ChatPhoto" }, { "name": "participants_count", "type": "int" }, {
-                "name": "date",
-                "type": "int"
-            }, { "name": "version", "type": "int" }, {
-                "name": "migrated_to",
-                "type": "flags.6?InputChannel"
-            }, { "name": "admin_rights", "type": "flags.14?ChatAdminRights" }, {
-                "name": "default_banned_rights",
-                "type": "flags.18?ChatBannedRights"
-            }],
+            "params": [
+                {
+                    "name": "flags",
+                    "type": "#"
+                },
+                {
+                    "name": "creator",
+                    "type": "flags.0?true"
+                },
+                {
+                    "name": "kicked",
+                    "type": "flags.1?true"
+                },
+                {
+                    "name": "left",
+                    "type": "flags.2?true"
+                },
+                {
+                    "name": "deactivated",
+                    "type": "flags.5?true"
+                },
+                {
+                    "name": "call_active",
+                    "type": "flags.23?true"
+                },
+                {
+                    "name": "call_not_empty",
+                    "type": "flags.24?true"
+                },
+                {
+                    "name": "noforwards",
+                    "type": "flags.25?true"
+                },
+                {
+                    "name": "id",
+                    "type": "long"
+                },
+                {
+                    "name": "title",
+                    "type": "string"
+                },
+                {
+                    "name": "photo",
+                    "type": "ChatPhoto"
+                },
+                {
+                    "name": "participants_count",
+                    "type": "int"
+                },
+                {
+                    "name": "date",
+                    "type": "int"
+                },
+                {
+                    "name": "version",
+                    "type": "int"
+                },
+                {
+                    "name": "migrated_to",
+                    "type": "flags.6?InputChannel"
+                },
+                {
+                    "name": "admin_rights",
+                    "type": "flags.14?ChatAdminRights"
+                },
+                {
+                    "name": "default_banned_rights",
+                    "type": "flags.18?ChatBannedRights"
+                }
+            ],
             "type": "Chat"
         }, {
             "id": 1704108455,
@@ -806,40 +1046,128 @@
         }, {
             "id": -2107528095,
             "predicate": "channel",
-            "params": [{ "name": "flags", "type": "#" }, { "name": "creator", "type": "flags.0?true" }, {
-                "name": "left",
-                "type": "flags.2?true"
-            }, { "name": "broadcast", "type": "flags.5?true" }, { "name": "verified", "type": "flags.7?true" }, {
-                "name": "megagroup",
-                "type": "flags.8?true"
-            }, { "name": "restricted", "type": "flags.9?true" }, { "name": "signatures", "type": "flags.11?true" }, {
-                "name": "min",
-                "type": "flags.12?true"
-            }, { "name": "scam", "type": "flags.19?true" }, { "name": "has_link", "type": "flags.20?true" }, {
-                "name": "has_geo",
-                "type": "flags.21?true"
-            }, { "name": "slowmode_enabled", "type": "flags.22?true" }, {
-                "name": "call_active",
-                "type": "flags.23?true"
-            }, { "name": "call_not_empty", "type": "flags.24?true" }, {
-                "name": "fake",
-                "type": "flags.25?true"
-            }, { "name": "gigagroup", "type": "flags.26?true" }, { "name": "id", "type": "long" }, {
-                "name": "access_hash",
-                "type": "flags.13?long"
-            }, { "name": "title", "type": "string" }, { "name": "username", "type": "flags.6?string" }, {
-                "name": "photo",
-                "type": "ChatPhoto"
-            }, { "name": "date", "type": "int" }, {
-                "name": "restriction_reason",
-                "type": "flags.9?Vector<RestrictionReason>"
-            }, { "name": "admin_rights", "type": "flags.14?ChatAdminRights" }, {
-                "name": "banned_rights",
-                "type": "flags.15?ChatBannedRights"
-            }, { "name": "default_banned_rights", "type": "flags.18?ChatBannedRights" }, {
-                "name": "participants_count",
-                "type": "flags.17?int"
-            }, { "name": "live_msg_id", "type": "flags.29?int" }],
+            "params": [
+                {
+                    "name": "flags",
+                    "type": "#"
+                },
+                {
+                    "name": "creator",
+                    "type": "flags.0?true"
+                },
+                {
+                    "name": "left",
+                    "type": "flags.2?true"
+                },
+                {
+                    "name": "broadcast",
+                    "type": "flags.5?true"
+                },
+                {
+                    "name": "verified",
+                    "type": "flags.7?true"
+                },
+                {
+                    "name": "megagroup",
+                    "type": "flags.8?true"
+                },
+                {
+                    "name": "restricted",
+                    "type": "flags.9?true"
+                },
+                {
+                    "name": "signatures",
+                    "type": "flags.11?true"
+                },
+                {
+                    "name": "min",
+                    "type": "flags.12?true"
+                },
+                {
+                    "name": "scam",
+                    "type": "flags.19?true"
+                },
+                {
+                    "name": "has_link",
+                    "type": "flags.20?true"
+                },
+                {
+                    "name": "has_geo",
+                    "type": "flags.21?true"
+                },
+                {
+                    "name": "slowmode_enabled",
+                    "type": "flags.22?true"
+                },
+                {
+                    "name": "call_active",
+                    "type": "flags.23?true"
+                },
+                {
+                    "name": "call_not_empty",
+                    "type": "flags.24?true"
+                },
+                {
+                    "name": "fake",
+                    "type": "flags.25?true"
+                },
+                {
+                    "name": "gigagroup",
+                    "type": "flags.26?true"
+                },
+                {
+                    "name": "noforwards",
+                    "type": "flags.27?true"
+                },
+                {
+                    "name": "id",
+                    "type": "long"
+                },
+                {
+                    "name": "access_hash",
+                    "type": "flags.13?long"
+                },
+                {
+                    "name": "title",
+                    "type": "string"
+                },
+                {
+                    "name": "username",
+                    "type": "flags.6?string"
+                },
+                {
+                    "name": "photo",
+                    "type": "ChatPhoto"
+                },
+                {
+                    "name": "date",
+                    "type": "int"
+                },
+                {
+                    "name": "restriction_reason",
+                    "type": "flags.9?Vector<RestrictionReason>"
+                },
+                {
+                    "name": "admin_rights",
+                    "type": "flags.14?ChatAdminRights"
+                },
+                {
+                    "name": "banned_rights",
+                    "type": "flags.15?ChatBannedRights"
+                },
+                {
+                    "name": "default_banned_rights",
+                    "type": "flags.18?ChatBannedRights"
+                },
+                {
+                    "name": "participants_count",
+                    "type": "flags.17?int"
+                },
+                {
+                    "name": "live_msg_id",
+                    "type": "flags.29?int"
+                }
+            ],
             "type": "Chat"
         }, {
             "id": 399807445,
@@ -1020,7 +1348,7 @@
             }, { "name": "grouped_id", "type": "flags.17?long" }, {
                 "name": "restriction_reason",
                 "type": "flags.22?Vector<RestrictionReason>"
-            }, { "name": "ttl_period", "type": "flags.25?int" }],
+            }, { "name": "ttl_period", "type": "flags.25?int" }, {"name": "noforwards", "type": "flags.26?true"}],
             "type": "Message"
         }, {
             "id": 721967202,
@@ -5711,30 +6039,77 @@
             }, { "name": "anonymous", "type": "flags.10?true" }, { "name": "manage_call", "type": "flags.11?true" }, {
                 "name": "other",
                 "type": "flags.12?true"
-            }],
+            }, {"name": "post_live", "type": "flags.20?true"}],
             "type": "ChatAdminRights"
         }, {
             "id": -1626209256,
             "predicate": "chatBannedRights",
-            "params": [{ "name": "flags", "type": "#" }, { "name": "view_messages", "type": "flags.0?true" }, {
-                "name": "send_messages",
-                "type": "flags.1?true"
-            }, { "name": "send_media", "type": "flags.2?true" }, {
-                "name": "send_stickers",
-                "type": "flags.3?true"
-            }, { "name": "send_gifs", "type": "flags.4?true" }, {
-                "name": "send_games",
-                "type": "flags.5?true"
-            }, { "name": "send_inline", "type": "flags.6?true" }, {
-                "name": "embed_links",
-                "type": "flags.7?true"
-            }, { "name": "send_polls", "type": "flags.8?true" }, {
-                "name": "change_info",
-                "type": "flags.10?true"
-            }, { "name": "invite_users", "type": "flags.15?true" }, {
-                "name": "pin_messages",
-                "type": "flags.17?true"
-            }, { "name": "until_date", "type": "int" }],
+            "params": [
+                {
+                    "name": "flags",
+                    "type": "#"
+                },
+                {
+                    "name": "view_messages",
+                    "type": "flags.0?true"
+                },
+                {
+                    "name": "send_messages",
+                    "type": "flags.1?true"
+                },
+                {
+                    "name": "send_media",
+                    "type": "flags.2?true"
+                },
+                {
+                    "name": "send_stickers",
+                    "type": "flags.3?true"
+                },
+                {
+                    "name": "send_gifs",
+                    "type": "flags.4?true"
+                },
+                {
+                    "name": "send_games",
+                    "type": "flags.5?true"
+                },
+                {
+                    "name": "send_inline",
+                    "type": "flags.6?true"
+                },
+                {
+                    "name": "send_polls",
+                    "type": "flags.8?true"
+                },
+                {
+                    "name": "change_info",
+                    "type": "flags.10?true"
+                },
+                {
+                    "name": "embed_links",
+                    "type": "flags.12?true"
+                },
+                {
+                    "name": "view_participants",
+                    "type": "flags.13?true"
+                },
+                {
+                    "name": "invite_users",
+                    "type": "flags.15?true"
+                },
+                {
+                    "name": "pin_messages",
+                    "type": "flags.17?true"
+                },
+                {
+                    "name": "send_forwarded_messages",
+                    "type": "flags.11?true"
+                },
+                {
+                    "name": "until_date",
+                    "type": "int"
+                }
+            ],
             "type": "ChatBannedRights"
         }, {
             "id": -433014407,
@@ -6056,22 +6431,72 @@
         }, {
             "id": 1949890536,
             "predicate": "dialogFilter",
-            "params": [{ "name": "flags", "type": "#" }, { "name": "contacts", "type": "flags.0?true" }, {
-                "name": "non_contacts",
-                "type": "flags.1?true"
-            }, { "name": "groups", "type": "flags.2?true" }, { "name": "broadcasts", "type": "flags.3?true" }, {
-                "name": "bots",
-                "type": "flags.4?true"
-            }, { "name": "exclude_muted", "type": "flags.11?true" }, {
-                "name": "exclude_read",
-                "type": "flags.12?true"
-            }, { "name": "exclude_archived", "type": "flags.13?true" }, { "name": "id", "type": "int" }, {
-                "name": "title",
-                "type": "string"
-            }, { "name": "emoticon", "type": "flags.25?string" }, {
-                "name": "pinned_peers",
-                "type": "Vector<InputPeer>"
-            }, { "name": "include_peers", "type": "Vector<InputPeer>" }, { "name": "exclude_peers", "type": "Vector<InputPeer>" }],
+            "params": [
+                {
+                    "name": "flags",
+                    "type": "#"
+                },
+                {
+                    "name": "contacts",
+                    "type": "flags.0?true"
+                },
+                {
+                    "name": "non_contacts",
+                    "type": "flags.1?true"
+                },
+                {
+                    "name": "groups",
+                    "type": "flags.2?true"
+                },
+                {
+                    "name": "broadcasts",
+                    "type": "flags.3?true"
+                },
+                {
+                    "name": "bots",
+                    "type": "flags.4?true"
+                },
+                {
+                    "name": "admin",
+                    "type": "flags.5?true"
+                },
+                {
+                    "name": "exclude_muted",
+                    "type": "flags.11?true"
+                },
+                {
+                    "name": "exclude_read",
+                    "type": "flags.12?true"
+                },
+                {
+                    "name": "exclude_archived",
+                    "type": "flags.13?true"
+                },
+                {
+                    "name": "id",
+                    "type": "int"
+                },
+                {
+                    "name": "title",
+                    "type": "string"
+                },
+                {
+                    "name": "emoticon",
+                    "type": "flags.25?string"
+                },
+                {
+                    "name": "pinned_peers",
+                    "type": "Vector<InputPeer>"
+                },
+                {
+                    "name": "include_peers",
+                    "type": "Vector<InputPeer>"
+                },
+                {
+                    "name": "exclude_peers",
+                    "type": "Vector<InputPeer>"
+                }
+            ],
             "type": "DialogFilter"
         }, {
             "id": 2004110666,
@@ -6614,7 +7039,7 @@
             "params": [{ "name": "token", "type": "string" }, { "name": "imei", "type": "string" }, {
                 "name": "packed_data",
                 "type": "bytes"
-            }, { "name": "layer", "type": "int" }],
+            }, { "name": "layer", "type": "int" }, {"name": "flags", "type": "int"}],
             "type": "EitaaObject"
         }, {
             "id": 1640969877,
@@ -9300,7 +9725,7 @@
             "params": [{ "name": "token", "type": "string" }, { "name": "imei", "type": "string" }, {
                 "name": "packed_data",
                 "type": "bytes"
-            }, { "name": "layer", "type": "int" }],
+            }, { "name": "layer", "type": "int" }, {"name": "flags", "type": "int"}],
             "type": "EitaaObject"
         }, {
             "id": -599448727,

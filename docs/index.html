@@ -841,7 +841,15 @@ php artisan package:discover</code></pre>
         <div class="footer">
             Documentation for `disintegrations/eitaa-serializer-laravel`. Generated as a static GitHub Pages page.
         </div>
-    </main>
+
+<section id="media-delivery">
+<h2>Uploads and media delivery</h2>
+<p>Use <code>EitaaGatewayClient::sendFile()</code> to stream local photos or documents. Supply the original filename, MIME, input peer and a persisted decimal-string random ID. Select <code>photo: true</code> for photos; documents use <code>photo: false</code>. Parts and the final media call share one pinned upload endpoint.</p>
+<p>Ordinary calls retain layer 133 and the normal endpoint. The media profile defaults to <code>https://alzheimer.eitaa.com/eitaa/</code>, layer 135 and envelope flags 128. Configure <code>EITAA_UPLOAD_ENDPOINT</code>, <code>EITAA_UPLOAD_LAYER</code> and <code>EITAA_UPLOAD_ENVELOPE_FLAGS</code>. The official final envelope flags field is serialized once; remove subclasses that append it. <code>EITAA_LEGACY_ENVELOPE=true</code> restores the old envelope for ordinary calls.</p>
+<p>Low-level callers should use <code>forUpload()</code> and <code>sendUpload()</code> for every part and fresh-media operation. Modern Eitaa user decoding is bundled; refresh customized schemas. Gateway errors raise sanitized <code>EitaaRpcException</code>. Check <code>EitaaSentMessage::id()</code> for a real sent message ID and inspect history after ambiguous acknowledgements. Delivery accounting remains the consuming application's responsibility.</p>
+<p>Authenticated smoke tests require <code>EITAA_RUN_INTEGRATION=1</code>, <code>EITAA_LIVE_SEND=1</code> and a private external <code>EITAA_LIVE_FIXTURE</code>. They retain IDs in private state and stop without resending ambiguous messages. See the repository README for the complete API, configuration and migration recipe.</p>
+</section>
+</main>
 </div>
 
 <script>

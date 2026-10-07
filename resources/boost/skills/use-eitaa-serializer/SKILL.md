@@ -125,5 +125,15 @@ In CI, run integration tests only after checking `https://sajad.eitaa.ir/eitaa/`
 ## Troubleshooting
 
 - If Laravel config values do not update, run `php artisan config:clear`.
-- If deserialization fails, dump HTTP status, content type, response length, and first bytes in hex before parsing.
+- If deserialization fails, report the exception type, HTTP status and response length only. Do not dump raw responses, tokens, IMEI, access hashes, upload bytes or provider paths.
 - If a TL object fails to serialize, check the schema for the exact method params, nested constructor predicates, and required flags.
+
+## Uploaded Media
+
+Use `EitaaGatewayClient::sendFile()` for streamed local uploads (see README for the complete example). Persist the decimal-string `randomId` before sending. Keep original filenames and MIME types; choose `photo: true` for a photo or `photo: false` for a document. It pins the configured upload endpoint for every part and the final `messages.sendMedia`, uses layer 135 / envelope flags 128, and converts input peers to plain upload peers. Ordinary `send()` retains layer 133 and normal routing. Remove subclasses that append flags manually.
+
+For low-level upload code, use `$upload = $client->forUpload()` and `sendUpload()` consistently for parts and freshly uploaded media. Never switch endpoints mid-transaction. The envelope includes flags once; `EITAA_LEGACY_ENVELOPE=true` restores the old envelope only for ordinary calls. Refresh custom response schemas for modern user decoding.
+
+Gateway native errors and RPC errors throw `EitaaRpcException`; use its numeric `rpcCode` and `classification()` rather than logging provider text. Raw TL decoding is still available through `TlDeserializer`. Confirm `EitaaSentMessage::id($response, $randomId)` rather than assuming arrays indicate success. A final-send decoding error may follow delivery: inspect history before retrying and retain the same random ID.
+
+Authenticated tests require `EITAA_RUN_INTEGRATION=1`, `EITAA_LIVE_SEND=1` and an external private `EITAA_LIVE_FIXTURE`. No-auth integration tests do not send messages. Keep private smoke state across reruns; ambiguous sends stop without resending.

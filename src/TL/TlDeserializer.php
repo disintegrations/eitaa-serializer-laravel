@@ -50,11 +50,17 @@ class TlDeserializer
                 }
 
                 if ($constructor !== 0x1cb5c415) {
-                    throw new RuntimeException("Invalid vector constructor [{$constructor}].");
+                    // RPC errors and envelopes may replace a nominal vector result.
+                    $this->offset -= 4;
+
+                    return $this->fetchObject('');
                 }
             }
 
             $count = $this->readInt();
+            if ($count < 0) {
+                throw new RuntimeException('Invalid negative TL vector length.');
+            }
             $itemType = substr($type, 7, -1);
             $items = [];
 
@@ -137,6 +143,12 @@ class TlDeserializer
 
         $constructor = $this->readInt();
 
+        if ($constructor === 0x1cb5c415) {
+            $this->offset -= 4;
+
+            return ['value' => $this->fetchObject('Vector<Object>')];
+        }
+
         if ($constructor === 0x3072cfa1) {
             return ['value' => $this->unpackGzipAndFetch($type)];
         }
@@ -171,7 +183,11 @@ class TlDeserializer
             throw new RuntimeException('Unable to decode gzip-packed TL payload.');
         }
 
-        return (new self($this->schema, $uncompressed, $this->mtproto))->fetchObject($type);
+        $deserializer = new self($this->schema, $uncompressed, $this->mtproto);
+        $result = $deserializer->fetchObject($type);
+        $deserializer->fetchEnd();
+
+        return $result;
     }
 
     private function fetchInt(): int
@@ -328,4 +344,3 @@ class TlDeserializer
         return $this->mtproto ? 'MTProto' : 'API';
     }
 }
-

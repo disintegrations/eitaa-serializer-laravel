@@ -245,7 +245,7 @@ class TlSerializer
         }
 
         if (! ctype_digit($digits)) {
-            throw new InvalidArgumentException("Invalid long value [{$decimal}].");
+            throw new InvalidArgumentException('Invalid TL long decimal value.');
         }
 
         $high = 0;
@@ -280,4 +280,3 @@ class TlSerializer
         return $this->mtproto ? 'MTProto' : 'API';
     }
 }
-
