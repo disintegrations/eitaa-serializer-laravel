@@ -32,6 +32,17 @@ EITAA_DEFAULT_IMEI=00__web
 EITAA_TIMEOUT=30
 ```
 
+Shared application metadata lives under `eitaa.app_info` for Eitaa methods that accept an `app_info` parameter. The `refreshToken()` helper uses these defaults and accepts per-call overrides. When calling `send()` directly, supply `['_' => 'eitaaAppInfo', ...config('eitaa.app_info')]` for that parameter.
+
+```dotenv
+EITAA_BUILD_VERSION=0
+EITAA_DEVICE_MODEL=web
+EITAA_SYSTEM_VERSION=v0.1
+EITAA_APP_VERSION=v0.1
+EITAA_LANG_CODE=fa
+EITAA_SIGN=
+```
+
 The package uses its bundled TL schema by default. If you need to customize the schema:
 
 ```bash
@@ -86,6 +97,42 @@ $response = app(EitaaGatewayClient::class)->send(
     imei: $imei,
 );
 ```
+
+## Token refresh
+
+Refresh an existing session explicitly using its stored token and original IMEI:
+
+```php
+use Disintegrations\EitaaSerializer\EitaaGatewayClient;
+
+$refresh = app(EitaaGatewayClient::class)->refreshToken(
+    token: $session->token,
+    imei: $session->imei,
+    appInfo: ['app_version' => 'v0.1'], // Optional configuration overrides.
+);
+
+if ($refresh->status === 'refreshed') {
+    // Persist both values before making another authenticated request.
+    $session->token = $refresh->token;
+    $session->expires_at = $refresh->expiresAt;
+    $session->save();
+}
+```
+
+The facade also supports `Eitaa::refreshToken($token, $imei, $appInfo)`. It returns `Disintegrations\EitaaSerializer\Responses\TokenRefreshResult`, which normalizes the TL refresh response constructors and exposes readonly `status`, nullable `token`, UTC `expiresAt`, `providerExpire`, and `providerDate`. Credentials are required; the helper sends one request through the ordinary endpoint, layer, and envelope configuration. It does not persist tokens, schedule refreshes, or replay requests. Coordinate refresh and credential updates in your application to avoid concurrent requests using an old token.
+
+| Status | Meaning |
+| --- | --- |
+| `refreshed` | A replacement token and positive expiry were returned. Persist them before further requests. |
+| `updating` | Eitaa reports token updating. Keep the stored credentials and retry later under application control. |
+| `refresh_required` | Eitaa returned `eitaa_updates_expire_token`. It signals a refresh requirement, not permanent session invalidation. |
+| `expired` | The token response has a nonpositive lifetime. No replacement token or expiry is exposed. |
+
+Positive `expire` values of at least `1_000_000_000` are Unix timestamps; smaller values are durations added to a valid provider date, or current UTC time when that date is unavailable. Malformed and unexpected responses throw sanitized `RuntimeException`s. Existing HTTP, connection, and sanitized `EitaaRpcException` failures propagate without automatic retries. JSON and debug output redact the result token, and native PHP serialization is prohibited; access `$refresh->token` only when storing or using credentials. Raw `send()` responses still contain credentials and must not be logged.
+
+The helper uses shared `eitaa.app_info` configuration. Per-call fields override those defaults; the `eitaaAppInfo` constructor is supplied by the helper.
+
+Gateway decoding supports both the original token response and the verified extended response containing an additional TL `long` and `string`. Those opaque fields are consumed and discarded with the bundled schema. `send()`, `sendPackedData()`, and `parseResponse()` share this compatibility, including packed, RPC, and gzip wrappers. Custom schemas remain authoritative; `TlDeserializer::fetchObject()` plus `fetchEnd()` retains strict raw decoding. `fetchResponse()` provides complete gateway-response decoding.
 
 ## TL Value Rules
 

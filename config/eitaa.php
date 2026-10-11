@@ -104,6 +104,24 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | App Info
+    |--------------------------------------------------------------------------
+    |
+    | Shared client metadata for Eitaa methods that accept app_info. The
+    | refreshToken() helper merges per-call overrides with these defaults.
+    |
+    */
+    'app_info' => [
+        'build_version' => (int) env('EITAA_BUILD_VERSION', 0),
+        'device_model' => env('EITAA_DEVICE_MODEL', 'web'),
+        'system_version' => env('EITAA_SYSTEM_VERSION', 'v0.1'),
+        'app_version' => env('EITAA_APP_VERSION', 'v0.1'),
+        'lang_code' => env('EITAA_LANG_CODE', 'fa'),
+        'sign' => env('EITAA_SIGN', ''),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | TL Schema Path
     |--------------------------------------------------------------------------
     |

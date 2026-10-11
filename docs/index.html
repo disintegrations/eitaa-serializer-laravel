@@ -495,6 +495,7 @@
             <a href="#install">Install</a>
             <a href="#configuration">Configuration</a>
             <a href="#usage">Usage</a>
+            <a href="#token-refresh">Token Refresh</a>
             <a href="#tl-rules">TL Rules</a>
             <a href="#testing">Testing</a>
             <a href="#pages">GitHub Pages</a>
@@ -620,6 +621,21 @@ EITAA_DEFAULT_IMEI=00__web
 EITAA_TIMEOUT=30</code></pre>
             </div>
 
+            <p>Shared application metadata lives under <code>eitaa.app_info</code> for Eitaa methods that accept
+                <code>app_info</code>. The refresh helper uses these defaults. For a direct <code>send()</code>,
+                supply <code>['_' =&gt; 'eitaaAppInfo', ...config('eitaa.app_info')]</code> as that parameter.</p>
+            <div class="code-block">
+                <div class="code-header"><span>.env</span>
+                    <button class="copy" type="button">Copy</button>
+                </div>
+                <pre><code>EITAA_BUILD_VERSION=0
+EITAA_DEVICE_MODEL=web
+EITAA_SYSTEM_VERSION=v0.1
+EITAA_APP_VERSION=v0.1
+EITAA_LANG_CODE=fa
+EITAA_SIGN=</code></pre>
+            </div>
+
             <p>Publish the bundled schema only when it must be customized.</p>
             <div class="code-block">
                 <div class="code-header"><span>bash</span>
@@ -687,6 +703,52 @@ $response = Eitaa::send('help.getConfig');</code></pre>
     imei: $imei,
 );</code></pre>
             </div>
+        </section>
+
+        <section id="token-refresh">
+            <h2>Token Refresh</h2>
+            <p class="section-intro">Refresh an existing session explicitly with its stored token and original IMEI.
+                The application controls credential storage, scheduling, concurrency and retries.</p>
+            <div class="code-block">
+                <div class="code-head"><span>Refresh and persist</span><button class="copy" type="button">Copy</button></div>
+                <pre><code>$refresh = app(\Disintegrations\EitaaSerializer\EitaaGatewayClient::class)-&gt;refreshToken(
+    token: $session-&gt;token,
+    imei: $session-&gt;imei,
+    appInfo: ['app_version' =&gt; 'v0.1'], // Optional overrides.
+);
+
+if ($refresh-&gt;status === 'refreshed') {
+    $session-&gt;token = $refresh-&gt;token;
+    $session-&gt;expires_at = $refresh-&gt;expiresAt;
+    $session-&gt;save();
+}</code></pre>
+            </div>
+            <p>The facade supports <code>Eitaa::refreshToken($token, $imei, $appInfo)</code>. The readonly
+                <code>Disintegrations\EitaaSerializer\Responses\TokenRefreshResult</code> normalizes the TL refresh
+                response constructors and exposes <code>status</code>, nullable <code>token</code>,
+                UTC <code>expiresAt</code>, <code>providerExpire</code> and <code>providerDate</code>.
+                Persist successful results before making further authenticated calls.</p>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Status</th><th>Meaning</th></tr></thead>
+                    <tbody>
+                    <tr><td><code>refreshed</code></td><td>Replacement token and positive expiry; persist both.</td></tr>
+                    <tr><td><code>updating</code></td><td>Keep stored credentials and retry later under application control.</td></tr>
+                    <tr><td><code>refresh_required</code></td><td>Provider refresh signal; it does not establish permanent session invalidation.</td></tr>
+                    <tr><td><code>expired</code></td><td>Nonpositive lifetime; no replacement token is exposed.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>The helper uses shared <code>eitaa.app_info</code> defaults.
+                Per-call fields override configuration; the helper supplies the constructor.</p>
+            <p>Expiry values of at least <code>1_000_000_000</code> are Unix timestamps; smaller positive values
+                are durations based on a valid provider date, falling back to current UTC time.
+                Legacy and extended token responses work through packed, RPC and gzip wrappers.
+                Unknown extension fields are discarded with the bundled schema. Raw TL decoding stays strict.</p>
+            <p>The helper makes one request using ordinary gateway routing and never automatically retries or replays
+                requests. Transport and sanitized RPC errors propagate; malformed responses throw sanitized exceptions.
+                JSON/debug output redacts the token and native result serialization is blocked.
+                Raw <code>send()</code> responses contain credentials and must not be logged.</p>
         </section>
 
         <section id="tl-rules">

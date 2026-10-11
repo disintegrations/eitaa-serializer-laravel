@@ -2,6 +2,9 @@
 
 namespace Disintegrations\EitaaSerializer;
 
+use DateTimeImmutable;
+use DateTimeZone;
+use Disintegrations\EitaaSerializer\Responses\TokenRefreshResult;
 use Illuminate\Support\Facades\Http;
 use Disintegrations\EitaaSerializer\TL\TlDeserializer;
 use Disintegrations\EitaaSerializer\TL\TlSchema;
@@ -11,6 +14,8 @@ use InvalidArgumentException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use GuzzleHttp\Psr7\Response as PsrResponse;
+use RuntimeException;
+use SensitiveParameter;
 
 class EitaaGatewayClient
 {
@@ -37,6 +42,72 @@ class EitaaGatewayClient
         $resultType = $serializer->storeMethod($method, $params);
 
         return $this->request($serializer->bytes(), $token, $imei, $resultType);
+    }
+
+    /**
+     * Refresh once; the caller must persist the replacement token before further requests.
+     *
+     * @param array{build_version?: int, device_model?: string, system_version?: string, app_version?: string, lang_code?: string, sign?: string} $appInfo
+     */
+    public function refreshToken(
+        #[SensitiveParameter] string $token,
+        #[SensitiveParameter] string $imei,
+        #[SensitiveParameter] array $appInfo = [],
+    ): TokenRefreshResult
+    {
+        if (trim($token) === '' || trim($imei) === '') {
+            throw new InvalidArgumentException('Token refresh requires a nonempty token and session IMEI.');
+        }
+
+        $defaults = config('eitaa.app_info', []);
+        $appInfo = array_replace(is_array($defaults) ? $defaults : [], $appInfo);
+        if (! is_int($appInfo['build_version'] ?? null)) {
+            throw new InvalidArgumentException('Eitaa app info requires an integer build_version.');
+        }
+        foreach (['device_model', 'system_version', 'app_version', 'lang_code', 'sign'] as $field) {
+            if (! is_string($appInfo[$field] ?? null)) {
+                throw new InvalidArgumentException('Eitaa app info requires string metadata fields.');
+            }
+        }
+        $appInfo['_'] = 'eitaaAppInfo';
+
+        $response = $this->send('eitaaRefreshToken', ['app_info' => $appInfo], $token, $imei);
+
+        if (! is_array($response)) {
+            throw new RuntimeException('Unexpected Eitaa token refresh response.');
+        }
+
+        $constructor = $response['_'] ?? null;
+        if ($constructor === 'eitaa_token_updating') {
+            return new TokenRefreshResult(status: 'updating');
+        }
+        if ($constructor === 'eitaa_updates_expire_token') {
+            return new TokenRefreshResult(status: 'refresh_required');
+        }
+        if ($constructor !== 'eitaa_updates_token' ||
+            ! is_string($response['token'] ?? null) || trim($response['token']) === '' ||
+            ! is_int($response['expire'] ?? null) || ! is_int($response['date'] ?? null)) {
+            throw new RuntimeException('Unexpected Eitaa token refresh response.');
+        }
+
+        $expire = $response['expire'];
+        $date = $response['date'];
+        if ($expire <= 0) {
+            return new TokenRefreshResult(status: 'expired', providerExpire: $expire, providerDate: $date);
+        }
+
+        $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
+        $timestamp = $expire >= 1_000_000_000
+            ? $expire
+            : ($date >= 1_000_000_000 ? $date : $now->getTimestamp()) + $expire;
+
+        return new TokenRefreshResult(
+            status: 'refreshed',
+            token: $response['token'],
+            expiresAt: $now->setTimestamp($timestamp),
+            providerExpire: $expire,
+            providerDate: $date,
+        );
     }
 
     /** Use one selected endpoint for parts and operations referencing fresh uploads. */
@@ -152,8 +223,7 @@ class EitaaGatewayClient
     {
         for ($depth = 0; $depth < 16; $depth++) {
             $deserializer = new TlDeserializer($this->getSchema(), $responseBody, true);
-            $response = $deserializer->fetchObject($type);
-            $deserializer->fetchEnd();
+            $response = $deserializer->fetchResponse($type);
 
             for ($wrapped = 0; is_array($response) && ($response['_'] ?? null) === 'rpc_result'; $wrapped++) {
                 if ($wrapped >= 16) {

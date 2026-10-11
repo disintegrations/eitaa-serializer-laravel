@@ -39,6 +39,8 @@ php artisan vendor:publish --tag=eitaa-schema
 
 Then set `EITAA_SCHEMA_PATH` to the absolute schema path.
 
+Shared application metadata lives in `eitaa.app_info`: build `0`, device `web`, system/app `v0.1`, language `fa`, sign empty. Configure it with `EITAA_BUILD_VERSION`, `EITAA_DEVICE_MODEL`, `EITAA_SYSTEM_VERSION`, `EITAA_APP_VERSION`, `EITAA_LANG_CODE`, and `EITAA_SIGN`. For any direct `send()` method accepting `app_info`, pass `['_' => 'eitaaAppInfo', ...config('eitaa.app_info')]`. The refresh helper also uses these defaults.
+
 ## Usage
 
 Prefer dependency injection or `app()` resolution:
@@ -81,6 +83,14 @@ $response = app(EitaaGatewayClient::class)->send(
     imei: $imei,
 );
 ```
+
+## Token Refresh
+
+Use `$client->refreshToken(token: $token, imei: $originalImei, appInfo: [])` or `Eitaa::refreshToken()` for one explicit refresh request. The typed `Disintegrations\EitaaSerializer\Responses\TokenRefreshResult` normalizes TL refresh response constructors and exposes `status`, nullable `token`, UTC `expiresAt`, `providerExpire`, and `providerDate`. Persist a `refreshed` token and expiry before further authenticated calls; the application controls storage, locks, scheduling and retries.
+
+`updating` and `refresh_required` are retryable provider signals, not proof that the session is permanently invalid. A nonpositive token lifetime returns `expired` without exposing a token. Malformed responses throw sanitized exceptions; existing transport/RPC errors propagate. JSON/debug output redacts the token and native serialization is blocked. Never log raw `send()` responses.
+
+The helper uses shared `eitaa.app_info` defaults; per-call overrides take precedence. Gateway decoding accepts legacy and extended refresh responses, including wrappers and gzip. Opaque extension fields are discarded with the bundled schema; custom schema fields remain authoritative. Raw `fetchObject()`/`fetchEnd()` stays strict; use `fetchResponse()` for complete response compatibility.
 
 ## TL Parameter Rules
 
