@@ -134,6 +134,9 @@ In CI, run integration tests only after checking `https://sajad.eitaa.ir/eitaa/`
 
 ## Troubleshooting
 
+- Login `auth.authorization` responses may append one opaque TL `string` after the user. This is distinct from the refresh response's `long` plus `string`. Use complete gateway decoding; do not skip arbitrary trailing bytes or infer a login extension from the refresh layout.
+- Exact `FLOOD_WAIT_<seconds>` signals are classified as `rate_limit`, including RPC code 400. Use the nullable `$exception->retryAfterSeconds` rather than assuming a fixed cooldown. Respect the reported delay; the package does not automatically sleep or retry.
+- For a reproducible response-processing failure, optionally enable `EITAA_CAPTURE_FAILED_RESPONSES=true` and clear the consuming app's config cache. Private, owner-only binary captures go to `storage/app/private/eitaa-diagnostics/` or `EITAA_DIAGNOSTICS_DIRECTORY`. Logs contain metadata only. Captures may contain tokens: inspect them locally, share paths rather than contents, and disable capture and delete files after diagnosis. HTTP failures and offline `parseResponse()` calls are not captured.
 - If Laravel config values do not update, run `php artisan config:clear`.
 - If deserialization fails, report the exception type, HTTP status and response length only. Do not dump raw responses, tokens, IMEI, access hashes, upload bytes or provider paths.
 - If a TL object fails to serialize, check the schema for the exact method params, nested constructor predicates, and required flags.

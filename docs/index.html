@@ -751,6 +751,27 @@ if ($refresh-&gt;status === 'refreshed') {
                 Raw <code>send()</code> responses contain credentials and must not be logged.</p>
         </section>
 
+        <section id="response-diagnostics">
+            <h2>Private Response Diagnostics</h2>
+            <p>Exact <code>FLOOD_WAIT_&lt;seconds&gt;</code> errors are classified as <code>rate_limit</code>,
+                including RPC code 400. The exception exposes only a positive, bounded numeric
+                <code>retryAfterSeconds</code> delay. Respect it before retrying; the client does not retry automatically.</p>
+            <p>Login authorization responses accept one opaque TL <code>string</code>
+                extension at the complete response boundary, distinct from the refresh response's
+                <code>long</code> plus <code>string</code>. Custom schema fields remain authoritative;
+                raw TL decoding, malformed extensions and unrelated trailing bytes remain strict.</p>
+            <p>Temporarily set <code>EITAA_CAPTURE_FAILED_RESPONSES=true</code> and run
+                <code>php artisan config:clear</code> in the consuming application to capture response decoding failures and decoded RPC errors.
+                Binary files are saved with owner-only permissions under
+                <code>storage/app/private/eitaa-diagnostics/</code>. Override the directory with
+                <code>EITAA_DIAGNOSTICS_DIRECTORY</code>; keep an existing directory private.</p>
+            <p>Logs contain the capture filename, method, status, byte count and exception class only.
+                HTTP failures and direct offline <code>parseResponse()</code> calls are not captured.
+                Capture does not retry requests or replace response-processing exceptions if storage or logging fails.</p>
+            <p>Files may contain session tokens and personal information. Share local paths only for private diagnosis.
+                Disable capture and delete files after diagnosis.</p>
+        </section>
+
         <section id="tl-rules">
             <h2>TL Value Rules</h2>
             <p class="section-intro">The serializer follows the bundled TL schema. Shape request arrays to match method

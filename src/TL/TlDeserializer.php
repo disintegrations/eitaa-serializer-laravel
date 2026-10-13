@@ -8,7 +8,7 @@ class TlDeserializer
 {
     private int $offset = 0;
 
-    private ?int $refreshExtensionOffset = null;
+    private ?int $tokenExtensionOffset = null;
 
     public function __construct(
         private TlSchema $schema,
@@ -22,7 +22,7 @@ class TlDeserializer
         return $this->fetchTypedObject($type, false);
     }
 
-    /** Decode one complete gateway response, including the extended token response. */
+    /** Decode one complete gateway response, including verified token extensions. */
     public function fetchResponse(string $type = ''): mixed
     {
         $response = $this->fetchTypedObject($type, true);
@@ -35,10 +35,12 @@ class TlDeserializer
             $result = $result['result'];
         }
 
-        if ($this->offset < strlen($this->buffer) && $this->refreshExtensionOffset === $this->offset &&
-            is_array($result) && ($result['_'] ?? null) === 'eitaa_updates_token') {
+        if ($this->offset < strlen($this->buffer) && $this->tokenExtensionOffset === $this->offset &&
+            is_array($result) && in_array($result['_'] ?? null, ['eitaa_updates_token', 'auth.authorization'], true)) {
             // Verified extensions are opaque; consume them only at the response boundary.
-            $this->fetchLong();
+            if ($result['_'] === 'eitaa_updates_token') {
+                $this->fetchLong();
+            }
             $this->fetchString();
         }
 
@@ -151,12 +153,21 @@ class TlDeserializer
             $this->mtproto = true;
         }
 
-        if ($responseBoundary && $predicate === 'eitaa_updates_token' && $definition['params'] === [
-            ['name' => 'token', 'type' => 'string'],
-            ['name' => 'expire', 'type' => 'int'],
-            ['name' => 'date', 'type' => 'int'],
-        ]) {
-            $this->refreshExtensionOffset = $this->offset;
+        $tokenParams = match ($predicate) {
+            'eitaa_updates_token' => [
+                ['name' => 'token', 'type' => 'string'],
+                ['name' => 'expire', 'type' => 'int'],
+                ['name' => 'date', 'type' => 'int'],
+            ],
+            'auth.authorization' => [
+                ['name' => 'flags', 'type' => '#'],
+                ['name' => 'token', 'type' => 'string'],
+                ['name' => 'user', 'type' => 'User'],
+            ],
+            default => null,
+        };
+        if ($responseBoundary && $tokenParams !== null && $definition['params'] === $tokenParams) {
+            $this->tokenExtensionOffset = $this->offset;
         }
 
         return $result;

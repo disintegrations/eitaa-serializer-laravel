@@ -16,6 +16,8 @@ use Illuminate\Http\Client\Response;
 use GuzzleHttp\Psr7\Response as PsrResponse;
 use RuntimeException;
 use SensitiveParameter;
+use Throwable;
+use Illuminate\Support\Facades\Log;
 
 class EitaaGatewayClient
 {
@@ -41,7 +43,7 @@ class EitaaGatewayClient
         $serializer = new TlSerializer($this->getSchema(), false);
         $resultType = $serializer->storeMethod($method, $params);
 
-        return $this->request($serializer->bytes(), $token, $imei, $resultType);
+        return $this->request($serializer->bytes(), $token, $imei, $resultType, method: $method);
     }
 
     /**
@@ -124,7 +126,7 @@ class EitaaGatewayClient
         $serializer = new TlSerializer($this->getSchema(), false);
         $resultType = $serializer->storeMethod($method, $params);
 
-        return $this->request($serializer->bytes(), $token, $imei, $resultType, true);
+        return $this->request($serializer->bytes(), $token, $imei, $resultType, true, $method);
     }
 
     /** Snapshot routing before starting a multipart transaction. No automatic failover. */
@@ -159,7 +161,7 @@ class EitaaGatewayClient
         return $this->request($packedData, $token, $imei, $expectVector ? 'Vector<Object>' : '');
     }
 
-    private function request(string $packedData, ?string $token, ?string $imei, string $type, bool $upload = false): mixed
+    private function request(string $packedData, ?string $token, ?string $imei, string $type, bool $upload = false, ?string $method = null): mixed
     {
         $body = $upload
             ? $this->serializeEnvelope($packedData, $token, $imei,
@@ -177,7 +179,70 @@ class EitaaGatewayClient
         }
 
         // Scalars and objects are boxed on the wire; only vectors need item typing.
-        return $this->parseResponse($response->body(), str_starts_with($type, 'Vector') ? $type : '');
+        try {
+            return $this->parseResponse($response->body(), str_starts_with($type, 'Vector') ? $type : '');
+        } catch (Throwable $exception) {
+            $this->captureFailedResponse($response, $method, $exception);
+
+            throw $exception;
+        }
+    }
+
+    private function captureFailedResponse(Response $response, ?string $method, Throwable $exception): void
+    {
+        if (! config('eitaa.diagnostics.capture_failed_responses', false)) {
+            return;
+        }
+
+        $context = [
+            'method' => $method,
+            'http_status' => $response->status(),
+            'response_bytes' => strlen($response->body()),
+            'exception_class' => $exception::class,
+        ];
+
+        try {
+            $directory = config('eitaa.diagnostics.directory', storage_path('app/private/eitaa-diagnostics'));
+            if (! is_string($directory) || $directory === '') {
+                throw new RuntimeException('Invalid diagnostic directory.');
+            }
+            if (! is_dir($directory) && ! @mkdir($directory, 0700, true) && ! is_dir($directory)) {
+                throw new RuntimeException('Could not create diagnostic directory.');
+            }
+
+            $filename = 'response-'.bin2hex(random_bytes(16)).'.bin';
+            $mask = umask(0077);
+            try {
+                $stream = @fopen($directory.DIRECTORY_SEPARATOR.$filename, 'xb');
+            } finally {
+                umask($mask);
+            }
+            if ($stream === false) {
+                throw new RuntimeException('Could not create diagnostic file.');
+            }
+            try {
+                $body = $response->body();
+                $written = 0;
+                while ($written < strlen($body)) {
+                    $count = @fwrite($stream, substr($body, $written));
+                    if ($count === false || $count === 0) {
+                        throw new RuntimeException('Could not write diagnostic response.');
+                    }
+                    $written += $count;
+                }
+            } finally {
+                fclose($stream);
+            }
+
+            Log::warning('Eitaa response processing failed; private response captured.', [...$context, 'capture_file' => $filename]);
+        } catch (Throwable) {
+            // Diagnostics must never replace the original decoding failure.
+            try {
+                Log::warning('Eitaa response processing failed; private capture unavailable.', $context);
+            } catch (Throwable) {
+                return;
+            }
+        }
     }
 
     public function wrapRequest(string $packedData, ?string $token = null, ?string $imei = null): string
@@ -233,7 +298,17 @@ class EitaaGatewayClient
             }
 
             if (is_array($response) && in_array($response['_'] ?? null, ['error', 'rpc_error'], true)) {
-                throw new EitaaRpcException((int) ($response['code'] ?? $response['error_code']), $response['_']);
+                $providerText = $response['text'] ?? $response['error_message'] ?? null;
+                $retryAfterSeconds = is_string($providerText)
+                    && preg_match('/\AFLOOD_WAIT_([1-9][0-9]{0,8})\z/', $providerText, $matches) === 1
+                        ? (int) $matches[1]
+                        : null;
+
+                throw new EitaaRpcException(
+                    (int) ($response['code'] ?? $response['error_code']),
+                    $response['_'],
+                    $retryAfterSeconds,
+                );
             }
             if (! is_array($response) || ! isset($response['packed_data']) || ! is_string($response['packed_data'])) {
                 return $response;

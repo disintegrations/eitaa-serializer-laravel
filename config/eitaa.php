@@ -132,4 +132,20 @@ return [
     |
     */
     'schema_path' => env('EITAA_SCHEMA_PATH'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Private Failed Response Capture
+    |--------------------------------------------------------------------------
+    |
+    | Temporarily enable this to diagnose decoding failures and RPC errors.
+    | Binary files may contain session credentials. Keep the directory private
+    | and delete files after diagnosis. Logs contain metadata only, never
+    | response contents.
+    |
+    */
+    'diagnostics' => [
+        'capture_failed_responses' => (bool) env('EITAA_CAPTURE_FAILED_RESPONSES', false),
+        'directory' => env('EITAA_DIAGNOSTICS_DIRECTORY', storage_path('app/private/eitaa-diagnostics')),
+    ],
 ];

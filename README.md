@@ -55,6 +55,22 @@ Then set:
 EITAA_SCHEMA_PATH=/absolute/path/to/resources/eitaa/schema.json
 ```
 
+Login responses support both legacy `auth.authorization` and the observed extended form containing one opaque TL `string` after the user. This differs from the refresh response's `long` plus `string` extension. Complete gateway responses consume that extension without exposing it. Raw `fetchObject()` / `fetchEnd()` remains strict, and custom schemas defining the field remain authoritative. Malformed extensions and additional trailing bytes still fail decoding.
+
+### Capture a failed response
+
+To diagnose an unread-bytes or unknown-constructor failure, temporarily enable:
+
+```dotenv
+EITAA_CAPTURE_FAILED_RESPONSES=true
+```
+
+Run `php artisan config:clear` in the consuming application, then reproduce the request once. The service provider merges the diagnostic defaults into existing published configuration. Capture saves decoding failures and decoded RPC errors from successful HTTP responses. Failed HTTP requests are not captured. The client does not retry requests automatically.
+
+Captures are binary `.bin` files in `storage/app/private/eitaa-diagnostics/`, created with owner-only permissions. Override this with `EITAA_DIAGNOSTICS_DIRECTORY=/absolute/private/path` if needed. Keep any existing directory private. The application log includes the capture filename, method, HTTP status, byte count and exception class, without response contents or request credentials. A storage or logging failure preserves the original response-processing exception.
+
+These files may contain session tokens and personal information. Share only their local paths for private diagnosis; do not paste contents into logs, issues or chat. Disable capture and delete the files after diagnosis. Direct offline `parseResponse()` calls do not capture files.
+
 ## Usage
 
 Inject or resolve the client:
@@ -215,6 +231,8 @@ Published old schemas are normalized locally for envelope serialization, whether
 ## RPC and transport failures
 
 `send()`, `sendUpload()`, `sendFile()` and `parseResponse()` raise `Disintegrations\EitaaSerializer\Exceptions\EitaaRpcException` for native `error` and `rpc_error`, including packed, gzip, RPC-result wrappers and vector-returning methods. This intentionally changes the old behavior that returned error arrays. Use `$exception->rpcCode`, `$exception->constructor` and `$exception->classification()` (`session` for 401/403, `rate_limit` for 420/429, `transient` for 5xx, otherwise `rpc`). Provider error text is omitted because it can contain private paths or sensitive values. Consumers needing raw TL error objects can use `TlDeserializer` directly.
+
+An exact `FLOOD_WAIT_<seconds>` provider signal is classified as `rate_limit` even when the RPC code is 400. Its positive, bounded numeric delay is exposed as `$exception->retryAfterSeconds`; other errors leave this property `null`. Raw provider text is never retained in the exception. Respect that delay before another request; the client does not sleep or retry automatically.
 
 HTTP failures remain Laravel `RequestException` with the HTTP status, but its response body and headers are removed from the exception to avoid leaking diagnostics. Connection failures remain Laravel connection exceptions; TL/schema failures remain distinct decoding/serialization exceptions. Timeouts are unchanged. Do not log credentials, peer access hashes, upload bytes or raw responses. The package does not implement application success accounting. In particular, a decoding failure after a final send can occur after delivery: retain the same `random_id`, inspect history and stop if ambiguous.
 
